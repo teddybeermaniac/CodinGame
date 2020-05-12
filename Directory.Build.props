@@ -8,6 +8,7 @@
         <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)/Boilerplate/csharp/StyleCop.ruleset</CodeAnalysisRuleSet>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <GenerateProgramFile>false</GenerateProgramFile>
+        <DefineConstants>$(DefineConstants);OUTSIDE_CODINGAME</DefineConstants>
     </PropertyGroup>
 
     <ItemGroup>
@@ -23,7 +24,7 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
-        <Compile Include="$(MSBuildThisFileDirectory)/UnitTestBase.cs" />
+        <Compile Include="$(MSBuildThisFileDirectory)/SolutionBase.cs" />
+        <EmbeddedResource Include="Tests\*.txt" />
     </ItemGroup>
-
 </Project>

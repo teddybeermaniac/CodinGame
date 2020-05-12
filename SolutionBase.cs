@@ -28,23 +28,61 @@
  * SOFTWARE.
  */
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Reflection;
 using Xunit;
 
 namespace CodinGame
 {
     /// <summary>
-    /// Base class for solution tests.
+    /// Base class for solution a solution, which runs its tests.
     /// </summary>
-    public abstract class UnitTestBase
+    /// <typeparam name="TSolution">The type of the solution class.</typeparam>
+    public abstract class SolutionBase<TSolution>
     {
+        /// <summary>
+        /// Loads test data from files and returns it.
+        /// </summary>
+        /// <returns>Test data.</returns>
+        public static IEnumerable<object[]> TestData()
+        {
+            Assembly assembly = typeof(TSolution).Assembly;
+            string testsNamespace = $"{typeof(TSolution).Namespace}.Tests.";
+
+            int testsCount = assembly.GetManifestResourceNames()
+                .Where(name => name.StartsWith(testsNamespace))
+                .Count() / 2;
+
+            return Enumerable.Range(1, testsCount)
+                .Select(i =>
+                {
+                    using (Stream inputStream = assembly.GetManifestResourceStream(
+                        $"{testsNamespace}{i}.input.txt"
+                    ))
+                    using (StreamReader inputReader = new StreamReader(inputStream))
+                    using (Stream outputStream = assembly.GetManifestResourceStream(
+                        $"{testsNamespace}{i}.output.txt"
+                    ))
+                    using (StreamReader outputReader = new StreamReader(outputStream))
+                    {
+                        string input = inputReader.ReadToEnd().TrimEnd();
+                        string output = outputReader.ReadToEnd().TrimEnd();
+
+                        return new object[] { input, output };
+                    }
+                });
+        }
+
         /// <summary>
         /// A wrapper which replaces stdin and stdout when running the solution.
         /// </summary>
         /// <param name="input">The input data.</param>
         /// <param name="output">The expected output.</param>
-        /// <param name="method">The solution.</param>
-        protected void TestBase(string input, string output, Action method)
+        [Theory]
+        [MemberData(nameof(TestData))]
+        public void Test(string input, string output)
         {
             using (var inReader = new StringReader(input))
             using (var outWriter = new StringWriter())
@@ -52,7 +90,11 @@ namespace CodinGame
                 Console.SetIn(inReader);
                 Console.SetOut(outWriter);
 
-                method();
+                MethodInfo method = typeof(TSolution).GetMethod(
+                    "Main",
+                    BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public
+                );
+                method.Invoke(null, null);
 
                 Assert.Equal(output, outWriter.ToString().Trim());
             }

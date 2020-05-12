@@ -2,6 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+#if OUTSIDE_CODINGAME
+using CodinGame;
+#endif
 
 namespace RockPaperScissorsLizardSpock
 {
@@ -39,7 +42,12 @@ namespace RockPaperScissorsLizardSpock
     /// <summary>
     /// The solution.
     /// </summary>
-    internal static class Solution
+#if OUTSIDE_CODINGAME
+    public class Solution : SolutionBase<Solution>
+
+#else
+    public class Solution
+#endif
     {
         /// <summary>
         /// Runs the solutin.
