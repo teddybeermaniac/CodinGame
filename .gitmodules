@@ -1,0 +1,4 @@
+[submodule "Boilerplate"]
+	path = Boilerplate
+	url = https://github.com/teddybeermaniac/Boilerplate.git
+	branch = master

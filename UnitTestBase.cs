@@ -33,22 +33,28 @@ using Xunit;
 
 namespace CodinGame
 {
+    /// <summary>
+    /// Base class for solution tests.
+    /// </summary>
     public abstract class UnitTestBase
     {
-        protected void TestBase((string Input, string Output)[] data, Action method)
+        /// <summary>
+        /// A wrapper which replaces stdin and stdout when running the solution.
+        /// </summary>
+        /// <param name="input">The input data.</param>
+        /// <param name="output">The expected output.</param>
+        /// <param name="method">The solution.</param>
+        protected void TestBase(string input, string output, Action method)
         {
-            foreach (var (input, output) in data)
+            using (var inReader = new StringReader(input))
+            using (var outWriter = new StringWriter())
             {
-                using (var inReader = new StringReader(input))
-                using (var outWriter = new StringWriter())
-                {
-                    Console.SetIn(inReader);
-                    Console.SetOut(outWriter);
+                Console.SetIn(inReader);
+                Console.SetOut(outWriter);
 
-                    method();
+                method();
 
-                    Assert.Equal(output, outWriter.ToString().Trim());
-                }
+                Assert.Equal(output, outWriter.ToString().Trim());
             }
         }
     }
