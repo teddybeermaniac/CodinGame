@@ -32,6 +32,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using Xunit;
 
 namespace CodinGame
@@ -50,10 +51,14 @@ namespace CodinGame
         {
             Assembly assembly = typeof(TSolution).Assembly;
             string testsNamespace = $"{typeof(TSolution).Namespace}.Tests.";
+            Regex testNameRegex = new Regex(
+                $@"^{Regex.Escape(testsNamespace)}(?<number>\d+)\.(input|output).txt$"
+            );
 
             int testsCount = assembly.GetManifestResourceNames()
-                .Where(name => name.StartsWith(testsNamespace))
-                .Count() / 2;
+                .Where(name => testNameRegex.IsMatch(name))
+                .Select(name => int.Parse(testNameRegex.Match(name).Groups["number"].Value))
+                .Max();
 
             return Enumerable.Range(1, testsCount)
                 .Select(i =>
@@ -67,8 +72,8 @@ namespace CodinGame
                     ))
                     using (StreamReader outputReader = new StreamReader(outputStream))
                     {
-                        string input = inputReader.ReadToEnd().TrimEnd();
-                        string output = outputReader.ReadToEnd().TrimEnd();
+                        string input = inputReader.ReadToEnd().TrimEnd('\n');
+                        string output = outputReader.ReadToEnd().TrimEnd('\n');
 
                         return new object[] { input, output };
                     }
@@ -87,16 +92,27 @@ namespace CodinGame
             using (var inReader = new StringReader(input))
             using (var outWriter = new StringWriter())
             {
-                Console.SetIn(inReader);
-                Console.SetOut(outWriter);
+                TextReader standardInput = Console.In;
+                TextWriter standardOutput = Console.Out;
 
                 MethodInfo method = typeof(TSolution).GetMethod(
                     "Main",
                     BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public
                 );
-                method.Invoke(null, null);
 
-                Assert.Equal(output, outWriter.ToString().Trim());
+                Console.SetIn(inReader);
+                Console.SetOut(outWriter);
+                try
+                {
+                    method.Invoke(null, null);
+                }
+                finally
+                {
+                    Console.SetOut(standardOutput);
+                    Console.SetIn(standardInput);
+                }
+
+                Assert.Equal(output, outWriter.ToString().TrimEnd('\n'));
             }
         }
     }

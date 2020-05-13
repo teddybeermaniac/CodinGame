@@ -7,7 +7,7 @@
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
         <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)/Boilerplate/csharp/StyleCop.ruleset</CodeAnalysisRuleSet>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
-        <GenerateProgramFile>false</GenerateProgramFile>
+        <StartupObject>CodinGame.Program</StartupObject>
         <DefineConstants>$(DefineConstants);OUTSIDE_CODINGAME</DefineConstants>
     </PropertyGroup>
 
@@ -20,10 +20,12 @@
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
         <PackageReference Include="xunit" Version="2.4.1" />
+        <PackageReference Include="xunit.runner.utility" Version="2.4.1" />
         <PackageReference Include="xunit.runner.visualstudio" Version="2.4.1">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
+        <Compile Include="$(MSBuildThisFileDirectory)/Program.cs" />
         <Compile Include="$(MSBuildThisFileDirectory)/SolutionBase.cs" />
         <EmbeddedResource Include="Tests\*.txt" />
     </ItemGroup>

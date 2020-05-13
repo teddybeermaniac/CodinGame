@@ -1,3 +1,5 @@
+// https://www.codingame.com/training/easy/rock-paper-scissors-lizard-spock
+// https://github.com/teddybeermaniac/CodinGame/tree/master/RockPaperScissorsLizardSpock
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -50,17 +52,17 @@ namespace RockPaperScissorsLizardSpock
 #endif
     {
         /// <summary>
-        /// Runs the solutin.
+        /// Runs the solution.
         /// </summary>
         public static void Main()
         {
-            List<Player> players = ReadInput();
+            List<Player> players = ReadInput().ToList();
             while (players.Count > 1)
             {
                 var winners = new List<Player>();
-                for (int p = 0; p < players.Count; p += 2)
+                for (int player = 0; player < players.Count; player += 2)
                 {
-                    winners.Add(Player.Fight(players[p], players[p + 1]));
+                    winners.Add(Player.Fight(players[player], players[player + 1]));
                 }
 
                 players = winners;
@@ -71,13 +73,12 @@ namespace RockPaperScissorsLizardSpock
             );
         }
 
-        private static List<Player> ReadInput()
+        private static IEnumerable<Player> ReadInput()
         {
             int playerCount = int.Parse(Console.ReadLine());
 
             return Enumerable.Range(0, playerCount)
-                .Select(p => new Player(Console.ReadLine()))
-                .ToList();
+                .Select(player => new Player(Console.ReadLine()));
         }
     }
 
