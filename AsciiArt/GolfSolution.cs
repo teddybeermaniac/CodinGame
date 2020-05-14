@@ -29,7 +29,7 @@ namespace AsciiArt
             {
                 foreach (char character in text)
                 {
-                    Console.Write(line.Substring(characterSet.IndexOf(characterSet.Contains(character) ? character : '?') * width, width));
+                    Console.Write(line.Substring(characterSet.IndexOf(characterSet.Contains(character.ToString()) ? character : '?') * width, width));
                 }
 
                 Console.WriteLine();
