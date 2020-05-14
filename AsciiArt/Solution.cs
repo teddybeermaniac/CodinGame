@@ -15,53 +15,41 @@ namespace AsciiArt
     /// </summary>
 #if OUTSIDE_CODINGAME
     public class Solution : SolutionBase<Solution>
-
 #else
     public class Solution
 #endif
     {
-        private static string CharacterSet { get; } = "ABCDEFGHIJKLMNOPQRSTUVWXYZ?";
-
-        private static string UnknownCharacter { get; } = "?";
-
-        private static Regex OutsideCharacterSetRegex { get; } = new Regex(
-            $"[^{Regex.Escape(CharacterSet)}]",
-            RegexOptions.Compiled
-        );
-
         /// <summary>
         /// Runs the solution.
         /// </summary>
         public static void Main()
         {
-            (string text, Dictionary<char, Glyph> font) = ReadInput();
-            IEnumerable<string> lines = OutsideCharacterSetRegex.Replace(
-                    text.ToUpper(),
-                    UnknownCharacter
-                ).Select(character => font[character].Text)
-                .Transpose()
-                .Select(glyphLine => string.Join(string.Empty, glyphLine));
+            (string text, Font font) = ReadInput();
 
-            foreach (string line in lines)
-            {
-                Console.WriteLine(line);
-            }
+            IEnumerable<string> output = font.Render(text);
+
+            WriteOutput(output);
         }
 
-        private static (string Text, Dictionary<char, Glyph> Font) ReadInput()
+        private static (string Text, Font Font) ReadInput()
         {
             int width = int.Parse(Console.ReadLine());
             int height = int.Parse(Console.ReadLine());
             string text = Console.ReadLine();
-            IEnumerable<string> glyphs = Enumerable.Range(0, height)
+            IEnumerable<string> glyphsLines = Enumerable.Range(0, height)
                 .Select(line => Console.ReadLine());
 
-            Dictionary<char, Glyph> font = glyphs.Select(line => line.Batch(width))
-                .ZipMany()
-                .Zip(CharacterSet, (glyph, character) => new Glyph(character, glyph))
-                .ToDictionary(glyph => glyph.Character);
+            var font = new Font(glyphsLines, width);
 
             return (text, font);
+        }
+
+        private static void WriteOutput(IEnumerable<string> output)
+        {
+            foreach (string line in output)
+            {
+                Console.WriteLine(line);
+            }
         }
     }
 
@@ -157,5 +145,50 @@ namespace AsciiArt
         /// Gets an array containing the glyph itself.
         /// </summary>
         public string[] Text { get; }
+    }
+
+    /// <summary>
+    /// A container class for a font.
+    /// </summary>
+    internal class Font
+    {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Font"/> class.
+        /// </summary>
+        /// <param name="glyphsLines">The enumerable of lines containing all glyphs.</param>
+        /// <param name="width">The width of a character.</param>
+        public Font(IEnumerable<string> glyphsLines, int width)
+        {
+            Glyphs = glyphsLines.Select(line => line.Batch(width))
+                .ZipMany()
+                .Zip(CharacterSet, (glyph, character) => new Glyph(character, glyph))
+                .ToDictionary(glyph => glyph.Character);
+        }
+
+        private static string CharacterSet { get; } = "ABCDEFGHIJKLMNOPQRSTUVWXYZ?";
+
+        private static string UnknownCharacter { get; } = "?";
+
+        private static Regex OutsideCharacterSetRegex { get; } = new Regex(
+            $"[^{Regex.Escape(CharacterSet)}]",
+            RegexOptions.Compiled
+        );
+
+        private Dictionary<char, Glyph> Glyphs { get; }
+
+        /// <summary>
+        /// Renders the specified text using the font.
+        /// </summary>
+        /// <param name="text">The text.</param>
+        /// <returns>An enumerable of lines of rendered text.</returns>
+        public IEnumerable<string> Render(string text)
+        {
+            return OutsideCharacterSetRegex.Replace(
+                    text.ToUpper(),
+                    UnknownCharacter
+                ).Select(character => Glyphs[character].Text)
+                .Transpose()
+                .Select(glyphLine => string.Join(string.Empty, glyphLine));
+        }
     }
 }

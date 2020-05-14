@@ -30,7 +30,10 @@
 using System;
 using System.Reflection;
 using System.Threading;
+using Xunit;
 using Xunit.Runners;
+
+[assembly: CollectionBehavior(DisableTestParallelization = true)]
 
 namespace CodinGame
 {
